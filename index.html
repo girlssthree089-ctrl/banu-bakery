@@ -1,0 +1,950 @@
+<!DOCTYPE html>
+<html lang="id" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Banu Bakery & Coffee - Freshly Baked Daily</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Playfair+Display:ital,wght@0,600;0,800;1,600&display=swap" rel="stylesheet">
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            50: '#fffbeb',
+                            100: '#fef3c7',
+                            200: '#fde68a',
+                            300: '#fcd34d',
+                            400: '#fbbf24',
+                            500: '#d97706',
+                            600: '#b45309',
+                            700: '#78350f',
+                            800: '#451a03',
+                            900: '#270e02',
+                        },
+                        cream: '#FDFBF7',
+                        warmgray: '#2C2523'
+                    },
+                    fontFamily: {
+                        sans: ['"Plus Jakarta Sans"', 'sans-serif'],
+                        serif: ['"Playfair Display"', 'serif'],
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        body {
+            background-color: #FDFBF7;
+            color: #2C2523;
+        }
+
+        /* 3:4 Landscape Aspect Ratio Container (Width 4 : Height 3) */
+        .aspect-3-4-landscape {
+            aspect-ratio: 4 / 3;
+        }
+
+        .glass-card {
+            background: rgba(255, 255, 255, 0.85);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(251, 191, 36, 0.2);
+        }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #FDFBF7;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #d97706;
+            border-radius: 4px;
+        }
+
+        /* Struk thermal print styles */
+        @media print {
+            body * {
+                visibility: hidden;
+            }
+            #printable-receipt-container, #printable-receipt-container * {
+                visibility: visible;
+            }
+            #printable-receipt-container {
+                position: absolute;
+                left: 0;
+                top: 0;
+                width: 100%;
+                background: white;
+                color: black;
+                padding: 10px;
+            }
+            .no-print {
+                display: none !important;
+            }
+        }
+    </style>
+</head>
+<body class="font-sans antialiased flex flex-col min-h-screen">
+
+    <!-- ==================== LOGIN MODAL / SCREEN ==================== -->
+    <div id="login-modal" class="fixed inset-0 z-50 flex items-center justify-center bg-brand-900/80 backdrop-blur-md px-4 transition-all duration-300">
+        <div class="bg-white rounded-3xl shadow-2xl overflow-hidden max-w-md w-full border border-brand-200 transform transition-all">
+            <div class="bg-gradient-to-r from-brand-700 to-brand-900 p-8 text-center text-white relative">
+                <div class="w-20 h-20 mx-auto mb-3 bg-white/10 rounded-full flex items-center justify-center backdrop-blur-sm border border-white/20">
+                    <i class="fa-solid fa-cookie-bite text-4xl text-brand-300"></i>
+                </div>
+                <h2 class="font-serif text-3xl font-bold">Banu Bakery</h2>
+                <p class="text-brand-200 text-sm mt-1">Silakan login untuk mengakses katalog & memesan</p>
+            </div>
+            
+            <form id="login-form" class="p-8 space-y-5">
+                <div id="login-error" class="hidden bg-red-50 border border-red-200 text-red-600 px-4 py-3 rounded-xl text-sm flex items-center gap-2">
+                    <i class="fa-solid fa-triangle-exclamation"></i>
+                    <span>Username atau password salah!</span>
+                </div>
+
+                <div>
+                    <label class="block text-xs font-bold uppercase tracking-wider text-brand-800 mb-2">Username</label>
+                    <div class="relative">
+                        <span class="absolute inset-y-0 left-0 flex items-center pl-4 text-brand-500">
+                            <i class="fa-solid fa-user"></i>
+                        </span>
+                        <input type="text" id="username" required placeholder="Masukkan username" 
+                            class="w-full pl-11 pr-4 py-3 bg-brand-50/50 border border-brand-200 rounded-xl focus:ring-2 focus:ring-brand-500 focus:outline-none transition">
+                    </div>
+                    <p class="text-xs text-gray-400 mt-1">Hint: banubakery</p>
+                </div>
+
+                <div>
+                    <label class="block text-xs font-bold uppercase tracking-wider text-brand-800 mb-2">Password</label>
+                    <div class="relative">
+                        <span class="absolute inset-y-0 left-0 flex items-center pl-4 text-brand-500">
+                            <i class="fa-solid fa-key"></i>
+                        </span>
+                        <input type="password" id="password" required placeholder="Masukkan password" 
+                            class="w-full pl-11 pr-4 py-3 bg-brand-50/50 border border-brand-200 rounded-xl focus:ring-2 focus:ring-brand-500 focus:outline-none transition">
+                    </div>
+                    <p class="text-xs text-gray-400 mt-1">Hint: 12345</p>
+                </div>
+
+                <button type="submit" 
+                    class="w-full bg-gradient-to-r from-brand-600 to-brand-700 hover:from-brand-700 hover:to-brand-800 text-white font-bold py-3.5 rounded-xl shadow-lg shadow-brand-600/30 transition transform active:scale-95 flex items-center justify-center gap-2">
+                    <span>Login Masuk</span>
+                    <i class="fa-solid fa-right-to-bracket"></i>
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- ==================== MAIN NAVBAR ==================== -->
+    <header class="sticky top-0 z-40 bg-cream/90 backdrop-blur-md border-b border-brand-100 transition-all">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-20">
+                <!-- Logo -->
+                <a href="#home" class="flex items-center gap-3 group">
+                    <div class="w-12 h-12 rounded-2xl bg-gradient-to-br from-brand-500 to-brand-700 flex items-center justify-center text-white shadow-md shadow-brand-500/20 group-hover:scale-105 transition">
+                        <i class="fa-solid fa-wheat-awn text-2xl"></i>
+                    </div>
+                    <div>
+                        <span class="font-serif text-2xl font-bold tracking-tight text-brand-900 block leading-none">Banu Bakery</span>
+                        <span class="text-[10px] tracking-widest uppercase font-semibold text-brand-600">Bakery & Coffee</span>
+                    </div>
+                </a>
+
+                <!-- Desktop Nav Navigation -->
+                <nav class="hidden md:flex items-center gap-8">
+                    <a href="#home" class="text-sm font-semibold text-warmgray hover:text-brand-600 transition">Beranda</a>
+                    <a href="#catalog" class="text-sm font-semibold text-warmgray hover:text-brand-600 transition">Katalog Menu</a>
+                    <a href="#about" class="text-sm font-semibold text-warmgray hover:text-brand-600 transition">Tentang Kami</a>
+                    <a href="#contact" class="text-sm font-semibold text-warmgray hover:text-brand-600 transition">Kontak</a>
+                </nav>
+
+                <!-- Action Buttons -->
+                <div class="flex items-center gap-3">
+                    <!-- Cart Button -->
+                    <button onclick="toggleCart()" class="relative p-3 bg-brand-100 hover:bg-brand-200 text-brand-800 rounded-xl transition flex items-center justify-center">
+                        <i class="fa-solid fa-basket-shopping text-xl"></i>
+                        <span id="cart-badge" class="absolute -top-1 -right-1 bg-red-500 text-white text-xs font-bold w-5 h-5 rounded-full flex items-center justify-center border-2 border-cream hidden">0</span>
+                    </button>
+
+                    <!-- User Status & Logout -->
+                    <div id="user-info-nav" class="hidden items-center gap-2 pl-2 border-l border-brand-200">
+                        <div class="hidden sm:block text-right">
+                            <span class="text-xs text-gray-500 block">Halo,</span>
+                            <span id="user-display-name" class="text-xs font-bold text-brand-900 block">banubakery</span>
+                        </div>
+                        <button onclick="logout()" title="Logout" class="p-2.5 text-red-600 hover:bg-red-50 rounded-xl transition border border-red-200">
+                            <i class="fa-solid fa-power-off"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- ==================== HERO SECTION ==================== -->
+    <section id="home" class="relative overflow-hidden pt-8 pb-16 lg:pt-16 lg:pb-24">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+            <div class="grid lg:grid-cols-2 gap-12 items-center">
+                <div class="space-y-6 text-center lg:text-left">
+                    <div class="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-brand-100 text-brand-800 text-xs font-bold uppercase tracking-wider">
+                        <i class="fa-solid fa-fire text-brand-500"></i> Fresh From The Oven
+                    </div>
+                    <h1 class="font-serif text-4xl sm:text-5xl lg:text-6xl font-extrabold text-brand-900 leading-tight">
+                        Kehangatan & Kelezatan <span class="text-brand-600 italic">Bolu & Pastry</span> Pilihan.
+                    </h1>
+                    <p class="text-gray-600 text-base sm:text-lg max-w-xl mx-auto lg:mx-0">
+                        Nikmati kelezatan aneka olahan kue manis, roti lembut, croissant renyah, dan kopi segar buatan racikan spesial Banu Bakery setiap hari.
+                    </p>
+                    <div class="flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-4">
+                        <a href="#catalog" class="w-full sm:w-auto px-8 py-4 bg-brand-600 hover:bg-brand-700 text-white font-bold rounded-2xl shadow-lg shadow-brand-600/30 transition text-center flex items-center justify-center gap-2">
+                            <span>Jelajahi Menu</span>
+                            <i class="fa-solid fa-arrow-right"></i>
+                        </a>
+                        <a href="https://wa.me/6283842876589?text=Halo%20Banu%20Bakery,%20saya%20ingin%20bertanya%20tentang%20produk" target="_blank" class="w-full sm:w-auto px-8 py-4 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-2xl shadow-lg shadow-emerald-600/20 transition text-center flex items-center justify-center gap-2">
+                            <i class="fa-brands fa-whatsapp text-xl"></i>
+                            <span>Chat WhatsApp</span>
+                        </a>
+                    </div>
+                </div>
+
+                <div class="relative">
+                    <div class="w-full aspect-3-4-landscape rounded-3xl overflow-hidden shadow-2xl border-4 border-white transform rotate-1 hover:rotate-0 transition duration-500">
+                        <img src="https://images.unsplash.com/photo-1509440159596-0249088772ff?auto=format&fit=crop&w=1000&q=80" alt="Banu Bakery Hero" class="w-full h-full object-cover">
+                    </div>
+                    <div class="absolute -bottom-6 -left-6 glass-card p-4 rounded-2xl shadow-xl hidden sm:flex items-center gap-4">
+                        <div class="w-12 h-12 rounded-xl bg-brand-500 text-white flex items-center justify-center text-xl">
+                            <i class="fa-solid fa-star"></i>
+                        </div>
+                        <div>
+                            <p class="font-bold text-sm text-brand-900">100% Bahan Premium</p>
+                            <p class="text-xs text-gray-500">Dibuat dengan cinta & kebersihan</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ==================== CATALOG SECTION ==================== -->
+    <section id="catalog" class="py-16 bg-brand-50/50 border-y border-brand-100">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex flex-col md:flex-row md:items-end justify-between mb-10 gap-6">
+                <div>
+                    <h2 class="font-serif text-3xl sm:text-4xl font-bold text-brand-900">Katalog Menu Favorit</h2>
+                    <p class="text-gray-600 mt-2">Pilih sajian kue dan pastry favoritmu hari ini</p>
+                </div>
+
+                <!-- Filter Buttons -->
+                <div class="flex flex-wrap gap-2">
+                    <button onclick="filterCategory('all')" class="filter-btn active px-4 py-2 rounded-xl text-xs font-bold transition bg-brand-600 text-white shadow-sm" data-cat="all">Semua Menu</button>
+                    <button onclick="filterCategory('cakes')" class="filter-btn px-4 py-2 rounded-xl text-xs font-bold transition bg-white text-gray-600 hover:bg-brand-100" data-cat="cakes">Cakes</button>
+                    <button onclick="filterCategory('brownies')" class="filter-btn px-4 py-2 rounded-xl text-xs font-bold transition bg-white text-gray-600 hover:bg-brand-100" data-cat="brownies">Brownies & Cookies</button>
+                    <button onclick="filterCategory('pastry')" class="filter-btn px-4 py-2 rounded-xl text-xs font-bold transition bg-white text-gray-600 hover:bg-brand-100" data-cat="pastry">Pastry & Snacks</button>
+                </div>
+            </div>
+
+            <!-- Custom Image Link Notice -->
+            <div class="mb-6 bg-amber-50 border border-amber-200 text-amber-800 rounded-xl p-3 text-xs flex items-center gap-2">
+                <i class="fa-solid fa-circle-info text-amber-600 text-base"></i>
+                <span><strong>Tips Kustomisasi:</strong> Gambar menggunakan URL foto resolusi tinggi berasio 3:4 landscape. Anda dapat mengganti URL gambar secara langsung di array kode JS atau menambahkan tombol file sendiri.</span>
+            </div>
+
+            <!-- Menu Grid -->
+            <div id="menu-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                <!-- Rendered dynamically via JS -->
+            </div>
+        </div>
+    </section>
+
+    <!-- ==================== ABOUT & LOGO SECTION ==================== -->
+    <section id="about" class="py-20 bg-cream">
+        <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 text-center space-y-10">
+            <div class="space-y-4">
+                <span class="text-xs font-bold uppercase tracking-widest text-brand-600">Tentang Kami</span>
+                <h2 class="font-serif text-3xl sm:text-4xl font-bold text-brand-900">Dedikasi Rasa Dari Dapur Banu Bakery</h2>
+                <div class="w-20 h-1 bg-brand-500 mx-auto rounded-full"></div>
+            </div>
+            
+            <p class="text-gray-600 text-base sm:text-lg leading-relaxed max-w-3xl mx-auto">
+                Banu Bakery & Coffee hadir membawa kehangatan cita rasa autentik. Kami memproduksi berbagai pilihan bolu, cheesecake, croissant, hingga kudapan mochi dan cookie terkini menggunakan bahan-bahan segar pilihan berkualitas tinggi tanpa bahan pengawet buatan. Nikmati momen santai Anda ditemani sajian kue lembut dan cangkir kopi terbaik kami.
+            </p>
+
+            <!-- Feature Cards -->
+            <div class="grid sm:grid-cols-3 gap-6 pt-6">
+                <div class="p-6 bg-white rounded-2xl border border-brand-100 shadow-sm text-center">
+                    <div class="w-12 h-12 bg-brand-100 text-brand-600 rounded-full flex items-center justify-center mx-auto mb-4 text-xl">
+                        <i class="fa-solid fa-certificate"></i>
+                    </div>
+                    <h3 class="font-bold text-brand-900 mb-1">Bahan Halal & Higienis</h3>
+                    <p class="text-xs text-gray-500">Terjamin kualitas dan kehalalan setiap bahan baku.</p>
+                </div>
+                <div class="p-6 bg-white rounded-2xl border border-brand-100 shadow-sm text-center">
+                    <div class="w-12 h-12 bg-brand-100 text-brand-600 rounded-full flex items-center justify-center mx-auto mb-4 text-xl">
+                        <i class="fa-solid fa-clock font-bold"></i>
+                    </div>
+                    <h3 class="font-bold text-brand-900 mb-1">Dipanggang Setiap Hari</h3>
+                    <p class="text-xs text-gray-500">Jaminan produk selalu segar baru keluar dari oven.</p>
+                </div>
+                <div class="p-6 bg-white rounded-2xl border border-brand-100 shadow-sm text-center">
+                    <div class="w-12 h-12 bg-brand-100 text-brand-600 rounded-full flex items-center justify-center mx-auto mb-4 text-xl">
+                        <i class="fa-solid fa-truck-fast"></i>
+                    </div>
+                    <h3 class="font-bold text-brand-900 mb-1">Pemesanan Mudah</h3>
+                    <p class="text-xs text-gray-500">Pesan cepat via WhatsApp & bayar QRIS/Transfer.</p>
+                </div>
+            </div>
+
+            <!-- LOGO BANU BAKERY SVG EMBED -->
+            <div class="pt-12 border-t border-brand-200">
+                <p class="text-xs font-bold text-gray-400 uppercase tracking-widest mb-6">Official Brand Logo</p>
+                <div class="inline-block bg-white p-8 rounded-3xl shadow-lg border border-brand-100 hover:scale-105 transition duration-300">
+                    <!-- Elegant SVG Logo -->
+                    <svg class="w-48 h-auto mx-auto" viewBox="0 0 300 180" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <circle cx="150" cy="70" r="55" fill="#FEF3C7" stroke="#D97706" stroke-width="3" stroke-dasharray="6 3"/>
+                        <path d="M120 75C120 55 135 45 150 45C165 45 180 55 180 75C180 85 170 95 150 95C130 95 120 85 120 75Z" fill="#78350F"/>
+                        <path d="M125 72C130 60 140 52 150 52C160 52 170 60 175 72" stroke="#FBBF24" stroke-width="3" stroke-linecap="round"/>
+                        <circle cx="138" cy="62" r="3" fill="#FFFBEB"/>
+                        <circle cx="162" cy="62" r="3" fill="#FFFBEB"/>
+                        <circle cx="150" cy="78" r="4" fill="#FBBF24"/>
+                        <path d="M135 90 C 145 98, 155 98, 165 90" stroke="#D97706" stroke-width="3" stroke-linecap="round"/>
+                        <text x="150" y="140" text-anchor="middle" fill="#451A03" font-family="'Playfair Display', serif" font-weight="bold" font-size="24">BANU BAKERY</text>
+                        <text x="150" y="158" text-anchor="middle" fill="#B45309" font-family="'Plus Jakarta Sans', sans-serif" font-weight="bold" font-size="10" letter-spacing="4">EST. 2024 • COFFEE & PASTRY</text>
+                    </svg>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ==================== FOOTER / CONTACT SECTION ==================== -->
+    <footer id="contact" class="bg-brand-900 text-white pt-16 pb-12">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-10 pb-12 border-b border-brand-800">
+                <!-- Info Usaha -->
+                <div class="space-y-4">
+                    <div class="flex items-center gap-3">
+                        <div class="w-10 h-10 rounded-xl bg-brand-500 flex items-center justify-center text-white">
+                            <i class="fa-solid fa-wheat-awn text-xl"></i>
+                        </div>
+                        <span class="font-serif text-2xl font-bold tracking-tight text-brand-100">Banu Bakery</span>
+                    </div>
+                    <p class="text-brand-200 text-sm leading-relaxed">
+                        Menyediakan aneka sajian kue kering, roti manis, cheesecake, dan kopi rasa terbaik untuk memanjakan lidah Anda.
+                    </p>
+                </div>
+
+                <!-- Kontak Langsung -->
+                <div class="space-y-4">
+                    <h4 class="font-bold text-lg text-brand-300">Hubungi & Kunjungi</h4>
+                    <ul class="space-y-3 text-sm text-brand-100">
+                        <li class="flex items-center gap-3">
+                            <i class="fa-brands fa-whatsapp text-emerald-400 text-lg w-5"></i>
+                            <a href="https://wa.me/6283842876589" target="_blank" class="hover:underline">083842876589 (WhatsApp)</a>
+                        </li>
+                        <li class="flex items-center gap-3">
+                            <i class="fa-brands fa-instagram text-pink-400 text-lg w-5"></i>
+                            <a href="https://www.instagram.com/_banubakery?rpxt=bGdyOXVlOXBrMTZ2" target="_blank" class="hover:underline">@_banubakery</a>
+                        </li>
+                        <li class="flex items-start gap-3">
+                            <i class="fa-solid fa-location-dot text-red-400 text-lg w-5 mt-0.5"></i>
+                            <a href="https://maps.app.goo.gl/JEQ1fVH38Px3ur9c7?g_st=ac" target="_blank" class="hover:underline leading-tight">Lihat Lokasi di Google Maps</a>
+                        </li>
+                    </ul>
+                </div>
+
+                <!-- Jam Operasional -->
+                <div class="space-y-4">
+                    <h4 class="font-bold text-lg text-brand-300">Jam Operasional</h4>
+                    <div class="text-sm text-brand-200 space-y-2">
+                        <div class="flex justify-between border-b border-brand-800 pb-1">
+                            <span>Senin - Jumat</span>
+                            <span class="font-semibold text-white">08.00 - 21.00 WIB</span>
+                        </div>
+                        <div class="flex justify-between border-b border-brand-800 pb-1">
+                            <span>Sabtu - Minggu</span>
+                            <span class="font-semibold text-white">08.00 - 22.00 WIB</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pt-8 text-center text-xs text-brand-400">
+                <p>&copy; 2024 Banu Bakery & Coffee. All Rights Reserved. Designed for Excellence.</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- ==================== CART MODAL ==================== -->
+    <div id="cart-modal" class="fixed inset-0 z-50 flex justify-end bg-black/50 backdrop-blur-sm hidden transition-opacity duration-300">
+        <div class="bg-white w-full max-w-md h-full flex flex-col shadow-2xl">
+            <!-- Header Cart -->
+            <div class="p-6 bg-brand-900 text-white flex items-center justify-between">
+                <div class="flex items-center gap-3">
+                    <i class="fa-solid fa-basket-shopping text-brand-300 text-xl"></i>
+                    <h3 class="font-serif text-xl font-bold">Keranjang Pesanan</h3>
+                </div>
+                <button onclick="toggleCart()" class="text-brand-300 hover:text-white p-2">
+                    <i class="fa-solid fa-xmark text-2xl"></i>
+                </button>
+            </div>
+
+            <!-- Cart Items Container -->
+            <div id="cart-items" class="flex-1 overflow-y-auto p-6 space-y-4">
+                <!-- Dynamically filled by JS -->
+            </div>
+
+            <!-- Footer Cart -->
+            <div class="p-6 bg-brand-50 border-t border-brand-100 space-y-4">
+                <div class="flex justify-between items-center text-lg font-bold text-brand-900">
+                    <span>Total Pembayaran:</span>
+                    <span id="cart-total-price" class="text-brand-600">Rp 0</span>
+                </div>
+
+                <button onclick="openCheckout()" id="btn-checkout" disabled class="w-full bg-brand-600 disabled:bg-gray-300 hover:bg-brand-700 text-white font-bold py-3.5 rounded-xl shadow-lg transition flex items-center justify-center gap-2">
+                    <span>Lanjut ke Pembayaran</span>
+                    <i class="fa-solid fa-credit-card"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ==================== CHECKOUT FORM MODAL ==================== -->
+    <div id="checkout-modal" class="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm hidden p-4 overflow-y-auto">
+        <div class="bg-white rounded-3xl max-w-lg w-full overflow-hidden shadow-2xl my-8">
+            <div class="bg-brand-800 text-white p-6 flex items-center justify-between">
+                <h3 class="font-serif text-xl font-bold">Formulir Checkout</h3>
+                <button onclick="closeCheckout()" class="text-brand-200 hover:text-white">
+                    <i class="fa-solid fa-xmark text-2xl"></i>
+                </button>
+            </div>
+
+            <form id="checkout-form" onsubmit="processPayment(event)" class="p-6 space-y-4">
+                <div>
+                    <label class="block text-xs font-bold text-brand-900 uppercase mb-1">Nama Pelanggan</label>
+                    <input type="text" id="cust-name" required placeholder="Masukkan nama Anda" class="w-full px-4 py-2.5 bg-brand-50 border border-brand-200 rounded-xl focus:ring-2 focus:ring-brand-500 focus:outline-none text-sm">
+                </div>
+
+                <div>
+                    <label class="block text-xs font-bold text-brand-900 uppercase mb-1">Nomor WhatsApp / HP</label>
+                    <input type="tel" id="cust-phone" required placeholder="Contoh: 083842876589" class="w-full px-4 py-2.5 bg-brand-50 border border-brand-200 rounded-xl focus:ring-2 focus:ring-brand-500 focus:outline-none text-sm">
+                </div>
+
+                <div>
+                    <label class="block text-xs font-bold text-brand-900 uppercase mb-1">Metode Pembayaran</label>
+                    <select id="payment-method" required class="w-full px-4 py-2.5 bg-brand-50 border border-brand-200 rounded-xl focus:ring-2 focus:ring-brand-500 focus:outline-none text-sm">
+                        <option value="Tunai / Cash">Tunai / Cash (Di Toko)</option>
+                        <option value="Transfer Bank BCA">Transfer Bank (BCA: 123-456-7890 a/n Banu Bakery)</option>
+                        <option value="QRIS">QRIS All Payment</option>
+                    </select>
+                </div>
+
+                <div class="bg-brand-50 p-4 rounded-xl space-y-2 border border-brand-100 text-sm">
+                    <div class="flex justify-between font-bold text-brand-900">
+                        <span>Ringkasan Tagihan:</span>
+                        <span id="checkout-total-price">Rp 0</span>
+                    </div>
+                </div>
+
+                <button type="submit" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-3.5 rounded-xl shadow-lg transition flex items-center justify-center gap-2">
+                    <i class="fa-solid fa-check-circle"></i>
+                    <span>Selesaikan & Bayar</span>
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- ==================== RECEIPT / STRUK MODAL ==================== -->
+    <div id="receipt-modal" class="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm hidden p-4 overflow-y-auto">
+        <div class="bg-white rounded-3xl max-w-md w-full overflow-hidden shadow-2xl my-8">
+            <!-- Printable Area -->
+            <div id="printable-receipt-container" class="p-8 bg-white font-mono text-sm leading-tight text-gray-800">
+                <div class="text-center pb-4 border-b border-dashed border-gray-400">
+                    <h2 class="font-serif font-bold text-2xl text-black">BANU BAKERY</h2>
+                    <p class="text-xs text-gray-600">Jl. Utama Banu Bakery & Coffee</p>
+                    <p class="text-xs text-gray-600">WA: 083842876589</p>
+                </div>
+
+                <div class="py-4 border-b border-dashed border-gray-400 space-y-1 text-xs">
+                    <div class="flex justify-between">
+                        <span>No. Struk:</span>
+                        <span id="receipt-id" class="font-bold">#BB-0000</span>
+                    </div>
+                    <div class="flex justify-between">
+                        <span>Tanggal:</span>
+                        <span id="receipt-date">01/01/2024</span>
+                    </div>
+                    <div class="flex justify-between">
+                        <span>Pelanggan:</span>
+                        <span id="receipt-cust-name">Banu</span>
+                    </div>
+                    <div class="flex justify-between">
+                        <span>Pembayaran:</span>
+                        <span id="receipt-method">Tunai</span>
+                    </div>
+                </div>
+
+                <!-- Items -->
+                <div class="py-4 border-b border-dashed border-gray-400 space-y-2" id="receipt-items-list">
+                    <!-- Dynamic Item List -->
+                </div>
+
+                <!-- Total -->
+                <div class="py-4 space-y-1 text-xs">
+                    <div class="flex justify-between text-base font-bold text-black pt-1">
+                        <span>TOTAL BAYAR:</span>
+                        <span id="receipt-total">Rp 0</span>
+                    </div>
+                </div>
+
+                <div class="text-center pt-4 border-t border-dashed border-gray-400 text-xs text-gray-500">
+                    <p>*** TERIMA KASIH ***</p>
+                    <p>Selamat Menikmati Hidangan Banu Bakery</p>
+                </div>
+            </div>
+
+            <!-- Receipt Actions (No Print) -->
+            <div class="p-6 bg-gray-50 border-t border-gray-200 flex flex-col sm:flex-row gap-3 no-print">
+                <button onclick="printReceipt()" class="flex-1 bg-brand-800 hover:bg-brand-900 text-white font-bold py-3 rounded-xl transition flex items-center justify-center gap-2 text-sm">
+                    <i class="fa-solid fa-print"></i>
+                    <span>Cetak Struk</span>
+                </button>
+                <button onclick="sendReceiptWA()" class="flex-1 bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-3 rounded-xl transition flex items-center justify-center gap-2 text-sm">
+                    <i class="fa-brands fa-whatsapp text-lg"></i>
+                    <span>Kirim WA</span>
+                </button>
+            </div>
+            <div class="px-6 pb-6 bg-gray-50 no-print">
+                <button onclick="closeReceipt()" class="w-full bg-gray-200 hover:bg-gray-300 text-gray-800 font-bold py-2.5 rounded-xl transition text-sm">
+                    Tutup
+                </button>
+            </div>
+        </div>
+    </div>
+
+
+    <!-- ==================== JAVASCRIPT LOGIC ==================== -->
+    <script>
+        // -------------------------------------------------------------
+        // DATA MENU (10 Menu Wajib dengan Foto Rasio 3:4 Landscape dari Unsplash)
+        // -------------------------------------------------------------
+        const menuData = [
+            {
+                id: 1,
+                name: "Cheescake",
+                category: "cakes",
+                price: 35000,
+                desc: "Cheesecake lembut khas New York dengan keju pilihan dan rasa creamy meleleh di mulut.",
+                image: "https://images.unsplash.com/photo-1533134242443-d4fd215305ad?auto=format&fit=crop&w=800&q=80"
+            },
+            {
+                id: 2,
+                name: "Fuddgy Brownies",
+                category: "brownies",
+                price: 45000,
+                desc: "Brownies cokelat tingkat kepekatan tinggi dengan tekstur padat, fudgy, dan lapisan shiny crust.",
+                image: "https://images.unsplash.com/photo-1606313564200-e75d5e30476c?auto=format&fit=crop&w=800&q=80"
+            },
+            {
+                id: 3,
+                name: "Berry Nutella Brookies",
+                category: "brownies",
+                price: 38000,
+                desc: "Perpaduan unik antara fudgy brownies, cookies Nutella lezat, dan kesegaran buah berry.",
+                image: "https://images.unsplash.com/photo-1558961363-fa8fdf82db35?auto=format&fit=crop&w=800&q=80"
+            },
+            {
+                id: 4,
+                name: "Cupcake",
+                category: "cakes",
+                price: 18000,
+                desc: "Kue mangkuk manis yang empuk dengan frosting buttercream cantik dan rasa bervariasi.",
+                image: "https://images.unsplash.com/photo-1576618148400-f54bed99fcfd?auto=format&fit=crop&w=800&q=80"
+            },
+            {
+                id: 5,
+                name: "Croissant",
+                category: "pastry",
+                price: 25000,
+                desc: "Pastry khas Prancis yang sangat renyah di luar, berlayar, dan harum butter asli.",
+                image: "https://images.unsplash.com/photo-1555507036-ab1f4038808a?auto=format&fit=crop&w=800&q=80"
+            },
+            {
+                id: 6,
+                name: "Red Velvet Cream Cheese",
+                category: "cakes",
+                price: 40000,
+                desc: "Kue klasik red velvet bernuansa merah mewah yang dilapisi krim keju gurih khas Banu Bakery.",
+                image: "https://images.unsplash.com/photo-1616541823729-00fe0aacd32c?auto=format&fit=crop&w=800&q=80"
+            },
+            {
+                id: 7,
+                name: "Bolen Pisang",
+                category: "pastry",
+                price: 30000,
+                desc: "Pastry tradisional berisi pisang raja manis, cokelat melimpah, dan keju gurih.",
+                image: "https://images.unsplash.com/photo-1621236378699-8597faf6a176?auto=format&fit=crop&w=800&q=80"
+            },
+            {
+                id: 8,
+                name: "Mochi",
+                category: "pastry",
+                price: 20000,
+                desc: "Kue mochi kenyal khas Jepang dengan isian es krim atau krim buah segar melimpah.",
+                image: "https://images.unsplash.com/photo-1563805042-7684c019e1cb?auto=format&fit=crop&w=800&q=80"
+            },
+            {
+                id: 9,
+                name: "Dubai Chewy Cookie",
+                category: "brownies",
+                price: 28000,
+                desc: "Soft-baked cookie populer bertekstur chewy kaya akan olahan cokelat pistachio ala Dubai.",
+                image: "https://images.unsplash.com/photo-1499636136210-6f4ee915583e?auto=format&fit=crop&w=800&q=80"
+            },
+            {
+                id: 10,
+                name: "Donat",
+                category: "pastry",
+                price: 12000,
+                desc: "Donat kentang super lembut dengan aneka glaze toping cokelat, keju, dan gula halus.",
+                image: "https://images.unsplash.com/photo-1551024709-8f23befc6f87?auto=format&fit=crop&w=800&q=80"
+            }
+        ];
+
+        // Application State
+        let cart = [];
+        let currentTransaction = null;
+
+        // -------------------------------------------------------------
+        // AUTH SYSTEM (LOGIN / LOGOUT)
+        // -------------------------------------------------------------
+        document.getElementById('login-form').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const u = document.getElementById('username').value.trim();
+            const p = document.getElementById('password').value.trim();
+
+            if (u === 'banubakery' && p === '12345') {
+                localStorage.setItem('banu_logged_in', 'true');
+                localStorage.setItem('banu_username', u);
+                checkAuthStatus();
+            } else {
+                document.getElementById('login-error').classList.remove('hidden');
+            }
+        });
+
+        function logout() {
+            localStorage.removeItem('banu_logged_in');
+            localStorage.removeItem('banu_username');
+            checkAuthStatus();
+        }
+
+        function checkAuthStatus() {
+            const isLoggedIn = localStorage.getItem('banu_logged_in') === 'true';
+            const username = localStorage.getItem('banu_username') || 'banubakery';
+            const loginModal = document.getElementById('login-modal');
+            const userInfoNav = document.getElementById('user-info-nav');
+            const userDisplayName = document.getElementById('user-display-name');
+
+            if (isLoggedIn) {
+                loginModal.classList.add('hidden');
+                userInfoNav.classList.remove('hidden');
+                userInfoNav.classList.add('flex');
+                userDisplayName.textContent = username;
+            } else {
+                loginModal.classList.remove('hidden');
+                userInfoNav.classList.add('hidden');
+                userInfoNav.classList.remove('flex');
+            }
+        }
+
+        // -------------------------------------------------------------
+        // RENDER MENU KATALOG
+        // -------------------------------------------------------------
+        function renderMenu(items) {
+            const grid = document.getElementById('menu-grid');
+            grid.innerHTML = '';
+
+            items.forEach(item => {
+                const card = document.createElement('div');
+                card.className = "bg-white rounded-3xl overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300 border border-brand-100 flex flex-col group";
+                card.innerHTML = `
+                    <div class="relative w-full aspect-3-4-landscape overflow-hidden bg-gray-100">
+                        <img src="${item.image}" alt="${item.name}" class="w-full h-full object-cover group-hover:scale-110 transition duration-500" loading="lazy" onerror="this.src='https://images.unsplash.com/photo-1509440159596-0249088772ff?auto=format&fit=crop&w=800&q=80'">
+                        <div class="absolute top-3 right-3 bg-cream/90 backdrop-blur-md px-3 py-1 rounded-full text-xs font-bold text-brand-900 border border-brand-200">
+                            Rp ${item.price.toLocaleString('id-ID')}
+                        </div>
+                    </div>
+                    <div class="p-5 flex-1 flex flex-col justify-between">
+                        <div>
+                            <h3 class="font-bold text-lg text-brand-900 group-hover:text-brand-600 transition">${item.name}</h3>
+                            <p class="text-xs text-gray-500 mt-1 line-clamp-2">${item.desc}</p>
+                        </div>
+                        <button onclick="addToCart(${item.id})" class="mt-4 w-full bg-brand-100 hover:bg-brand-600 hover:text-white text-brand-800 font-bold py-2.5 rounded-xl transition flex items-center justify-center gap-2 text-xs">
+                            <i class="fa-solid fa-plus"></i>
+                            <span>Tambah ke Keranjang</span>
+                        </button>
+                    </div>
+                `;
+                grid.appendChild(card);
+            });
+        }
+
+        function filterCategory(cat) {
+            // Update button styles
+            document.querySelectorAll('.filter-btn').forEach(btn => {
+                if(btn.getAttribute('data-cat') === cat) {
+                    btn.className = "filter-btn active px-4 py-2 rounded-xl text-xs font-bold transition bg-brand-600 text-white shadow-sm";
+                } else {
+                    btn.className = "filter-btn px-4 py-2 rounded-xl text-xs font-bold transition bg-white text-gray-600 hover:bg-brand-100";
+                }
+            });
+
+            if (cat === 'all') {
+                renderMenu(menuData);
+            } else {
+                const filtered = menuData.filter(m => m.category === cat);
+                renderMenu(filtered);
+            }
+        }
+
+        // -------------------------------------------------------------
+        // KERANJANG BELANJA (CART) LOGIC
+        // -------------------------------------------------------------
+        function toggleCart() {
+            const modal = document.getElementById('cart-modal');
+            modal.classList.toggle('hidden');
+        }
+
+        function addToCart(id) {
+            const item = menuData.find(m => m.id === id);
+            const exist = cart.find(c => c.id === id);
+
+            if (exist) {
+                exist.qty += 1;
+            } else {
+                cart.push({ ...item, qty: 1 });
+            }
+
+            updateCartUI();
+        }
+
+        function updateCartQty(id, change) {
+            const exist = cart.find(c => c.id === id);
+            if (exist) {
+                exist.qty += change;
+                if (exist.qty <= 0) {
+                    cart = cart.filter(c => c.id !== id);
+                }
+            }
+            updateCartUI();
+        }
+
+        function updateCartUI() {
+            const container = document.getElementById('cart-items');
+            const badge = document.getElementById('cart-badge');
+            const totalPriceEl = document.getElementById('cart-total-price');
+            const btnCheckout = document.getElementById('btn-checkout');
+
+            // Total count
+            const totalItems = cart.reduce((acc, curr) => acc + curr.qty, 0);
+            if (totalItems > 0) {
+                badge.textContent = totalItems;
+                badge.classList.remove('hidden');
+                btnCheckout.disabled = false;
+            } else {
+                badge.classList.add('hidden');
+                btnCheckout.disabled = true;
+            }
+
+            // Calculate total price
+            const grandTotal = cart.reduce((acc, curr) => acc + (curr.price * curr.qty), 0);
+            totalPriceEl.textContent = `Rp ${grandTotal.toLocaleString('id-ID')}`;
+
+            // Render list
+            container.innerHTML = '';
+            if (cart.length === 0) {
+                container.innerHTML = `
+                    <div class="text-center py-12 text-gray-400">
+                        <i class="fa-solid fa-basket-shopping text-5xl mb-3 text-brand-200"></i>
+                        <p class="text-sm">Keranjang belanja Anda masih kosong.</p>
+                    </div>
+                `;
+                return;
+            }
+
+            cart.forEach(item => {
+                const row = document.createElement('div');
+                row.className = "flex items-center gap-3 bg-brand-50/60 p-3 rounded-2xl border border-brand-100";
+                row.innerHTML = `
+                    <img src="${item.image}" class="w-16 h-16 object-cover rounded-xl">
+                    <div class="flex-1">
+                        <h4 class="font-bold text-xs text-brand-900">${item.name}</h4>
+                        <p class="text-xs text-brand-600 font-semibold">Rp ${(item.price * item.qty).toLocaleString('id-ID')}</p>
+                    </div>
+                    <div class="flex items-center gap-2 bg-white px-2 py-1 rounded-lg border border-brand-200">
+                        <button onclick="updateCartQty(${item.id}, -1)" class="text-brand-600 hover:text-brand-900 font-bold px-1 text-xs">-</button>
+                        <span class="text-xs font-bold w-4 text-center">${item.qty}</span>
+                        <button onclick="updateCartQty(${item.id}, 1)" class="text-brand-600 hover:text-brand-900 font-bold px-1 text-xs">+</button>
+                    </div>
+                `;
+                container.appendChild(row);
+            });
+        }
+
+        // -------------------------------------------------------------
+        // CHECKOUT & PEMBAYARAN
+        // -------------------------------------------------------------
+        function openCheckout() {
+            if (cart.length === 0) return;
+            toggleCart();
+            const grandTotal = cart.reduce((acc, curr) => acc + (curr.price * curr.qty), 0);
+            document.getElementById('checkout-total-price').textContent = `Rp ${grandTotal.toLocaleString('id-ID')}`;
+            document.getElementById('checkout-modal').classList.remove('hidden');
+        }
+
+        function closeCheckout() {
+            document.getElementById('checkout-modal').classList.add('hidden');
+        }
+
+        function processPayment(e) {
+            e.preventDefault();
+            const name = document.getElementById('cust-name').value;
+            const phone = document.getElementById('cust-phone').value;
+            const method = document.getElementById('payment-method').value;
+
+            const total = cart.reduce((acc, curr) => acc + (curr.price * curr.qty), 0);
+            const orderId = 'BB-' + Math.floor(1000 + Math.random() * 9000);
+            const now = new Date().toLocaleString('id-ID', { dateStyle: 'medium', timeStyle: 'short' });
+
+            currentTransaction = {
+                id: orderId,
+                date: now,
+                customer: name,
+                phone: phone,
+                method: method,
+                items: [...cart],
+                total: total
+            };
+
+            // Reset cart
+            cart = [];
+            updateCartUI();
+
+            closeCheckout();
+            showReceipt();
+        }
+
+        // -------------------------------------------------------------
+        // STRUK & BUKTI PEMBAYARAN
+        // -------------------------------------------------------------
+        function showReceipt() {
+            if (!currentTransaction) return;
+
+            document.getElementById('receipt-id').textContent = '#' + currentTransaction.id;
+            document.getElementById('receipt-date').textContent = currentTransaction.date;
+            document.getElementById('receipt-cust-name').textContent = currentTransaction.customer;
+            document.getElementById('receipt-method').textContent = currentTransaction.method;
+            document.getElementById('receipt-total').textContent = `Rp ${currentTransaction.total.toLocaleString('id-ID')}`;
+
+            const itemsContainer = document.getElementById('receipt-items-list');
+            itemsContainer.innerHTML = '';
+
+            currentTransaction.items.forEach(item => {
+                const el = document.createElement('div');
+                el.className = 'text-xs space-y-0.5';
+                el.innerHTML = `
+                    <div class="flex justify-between font-bold">
+                        <span>${item.name}</span>
+                    </div>
+                    <div class="flex justify-between text-gray-600">
+                        <span>${item.qty} x Rp ${item.price.toLocaleString('id-ID')}</span>
+                        <span>Rp ${(item.qty * item.price).toLocaleString('id-ID')}</span>
+                    </div>
+                `;
+                itemsContainer.appendChild(el);
+            });
+
+            document.getElementById('receipt-modal').classList.remove('hidden');
+        }
+
+        function closeReceipt() {
+            document.getElementById('receipt-modal').classList.add('hidden');
+        }
+
+        function printReceipt() {
+            window.print();
+        }
+
+        function sendReceiptWA() {
+            if (!currentTransaction) return;
+
+            let text = `*STRUK PEMBAYARAN - BANU BAKERY*\n`;
+            text += `-----------------------------------\n`;
+            text += `No. Struk : #${currentTransaction.id}\n`;
+            text += `Tanggal   : ${currentTransaction.date}\n`;
+            text += `Pelanggan : ${currentTransaction.customer}\n`;
+            text += `Metode    : ${currentTransaction.method}\n`;
+            text += `-----------------------------------\n`;
+            text += `*PESANAN:*\n`;
+
+            currentTransaction.items.forEach(item => {
+                text += `• ${item.name} (${item.qty}x) = Rp ${(item.qty * item.price).toLocaleString('id-ID')}\n`;
+            });
+
+            text += `-----------------------------------\n`;
+            text += `*TOTAL BAYAR: Rp ${currentTransaction.total.toLocaleString('id-ID')}*\n\n`;
+            text += `Terima Kasih telah berbelanja di Banu Bakery!`;
+
+            const encoded = encodeURIComponent(text);
+            const waUrl = `https://wa.me/6283842876589?text=${encoded}`;
+            window.open(waUrl, '_blank');
+        }
+
+        // Initialize on load
+        window.addEventListener('DOMContentLoaded', () => {
+            checkAuthStatus();
+            renderMenu(menuData);
+        });
+    </script>
+</body>
+</html>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
